@@ -36,13 +36,13 @@
 </template>
 
 <script>
-import { mapMutations } from 'vuex';
+import { mapMutations } from "vuex";
 
 export default {
   layout: "empty",
 
   head: {
-    title: 'Добро пожаловать в Nuxt чат'
+    title: "Добро пожаловать в Nuxt чат"
   },
 
   sockets: {
@@ -62,15 +62,23 @@ export default {
   }),
 
   methods: {
-    ...mapMutations(['setUser']),
+    ...mapMutations(["setUser"]),
     submit() {
       if (this.$refs.form.validate()) {
         const user = {
           name: this.name,
           room: this.room
-        }
-        this.setUser(user);
-        this.$router.push("/chat");
+        };
+
+        this.$socket.emit("userJoined", user, data => {
+          if (typeof data === "string") {
+            console.error(data);
+          } else {
+            user.id = data.userId;
+            this.setUser(user);
+            this.$router.push("/chat");
+          }
+        });
       }
     }
   }
