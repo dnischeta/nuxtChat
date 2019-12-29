@@ -4,14 +4,13 @@
       <v-list subheader>
         <v-subheader>Пользователи в комнате</v-subheader>
 
-        <v-list-item v-for="u in users" :key="u.id" >
-          
+        <v-list-item v-for="u in users" :key="u.id">
           <v-list-item-content>
             <v-list-item-title v-text="u.name"></v-list-item-title>
           </v-list-item-content>
 
           <v-list-item-icon>
-            <v-icon :color="u.id === 2 ? 'deep-purple accent-4' : 'grey'"
+            <v-icon :color="u.id === user.id ? 'deep-purple accent-4' : 'grey'"
               >mdi-message</v-icon
             >
           </v-list-item-icon>
@@ -26,7 +25,7 @@
       <v-toolbar-title>Комната {{ user.room }}</v-toolbar-title>
     </v-app-bar>
     <v-content app>
-      <div>
+      <div style="height: 100%;">
         <nuxt />
       </div>
     </v-content>
@@ -38,20 +37,18 @@ import { mapState, mapMutations } from "vuex";
 
 export default {
   data: () => ({
-    drawer: false,
-    users: [
-      {id: 1, name: 'user1'},
-      {id: 2, name: 'user2'}
-    ]
+    drawer: false
   }),
   computed: {
-    ...mapState(["user"])
+    ...mapState(["user", "users"])
   },
   methods: {
-    ...mapMutations(['clearData']),
+    ...mapMutations(["clearData"]),
     exit() {
-      this.$router.push('/?message=leftChat');
-      this.clearData();
+      this.$socket.emit("userLeft", this.user.id, () => {
+        this.$router.push("/?message=leftChat");
+        this.clearData();
+      });
     }
   }
 };
